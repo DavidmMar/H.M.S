@@ -1,7 +1,71 @@
-#include <Arduino.h>
-#include <Wifi.h>
+#include <mqtt_pub.h>
 
-ssid = http://192.168.56.1
+// Define NTP Client to get time
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP);
+
+// Variables to save date and time
+String formattedDate;
+String dayStamp;
+String timeStamp;
+
+String getDateAndTime()
+{
+    while (!timeClient.update())
+    {
+        timeClient.forceUpdate();
+    }
+    // The formattedDate comes with the following format:
+    // 2018-05-28T16:00:13Z
+    // We need to extract date and time
+    formattedDate = timeClient.getFormattedDate();
+    Serial.println(formattedDate);
+
+    // Extract date
+    int splitT = formattedDate.indexOf("T");
+    dayStamp = formattedDate.substring(0, splitT);
+    Serial.print("DATE: ");
+    Serial.println(dayStamp);
+
+    // Extract time
+    timeStamp = formattedDate.substring(splitT + 1, formattedDate.length() - 1);
+    Serial.print("HOUR: ");
+    Serial.println(timeStamp);
+    delay(1000);
+
+    return formattedDate;
+}
+
+String mockData()
+{
+    String rnd = String(random(0, 1000));
+
+    String dateAndTime = getDateAndTime();
+    rnd.concat("_");
+    rnd.concat(dateAndTime);
+
+    return rnd;
+}
+
+void connectToWifi()
+{
+    Serial.println();
+    Serial.print("Connecting to ");
+    Serial.println(SSID);
+
+    WiFi.begin(SSID, PWD);
+
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
+}
 
 void setup()
 {
@@ -11,39 +75,28 @@ void setup()
     WiFi.disconnect();
     delay(100);
 
+    timeClient.begin();
+    // Set offset time in seconds to adjust for your timezone, for example:
+    // GMT +1 = 3600
+    // GMT +8 = 28800
+    // GMT -1 = -3600
+    // GMT 0 = 0
+    timeClient.setTimeOffset(3600);
+
+    connectToWifi();
+
     Serial.println("Setup done");
 }
 
 void loop()
 {
-    Serial.println("scan start");
+    delay(10);
 
-    // WiFi.scanNetworks will return the number of networks found
-    int n = WiFi.scanNetworks();
-    Serial.println("scan done");
-    if (n == 0)
-    {
-        Serial.println("no networks found");
-    }
-    else
-    {
-        Serial.print(n);
-        Serial.println(" networks found");
-        for (int i = 0; i < n; ++i)
-        {
-            // Print SSID and RSSI for each network found
-            Serial.print(i + 1);
-            Serial.print(": ");
-            Serial.print(WiFi.SSID(i));
-            Serial.print(" (");
-            Serial.print(WiFi.RSSI(i));
-            Serial.print(")");
-            Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
-            delay(10);
-        }
-    }
-    Serial.println("");
+    // get the data
+    String md = mockData();
 
-    // Wait a bit before scanning again
-    delay(5000);
+    Serial.print("Data: ");
+    Serial.println(md);
+
+    delay(3000);
 }
