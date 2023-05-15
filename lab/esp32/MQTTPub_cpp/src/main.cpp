@@ -47,6 +47,33 @@ String mockData()
     return rnd;
 }
 
+void makeRequest()
+{
+    HTTPClient http;
+    String serverPath = "www.example.com";
+
+    // Your Domain name with URL path or IP address with path
+    http.begin(serverPath.c_str());
+
+    // Send HTTP GET request
+    int httpResponseCode = http.GET();
+
+    if (httpResponseCode > 0)
+    {
+        Serial.print("HTTP Response code: ");
+        Serial.println(httpResponseCode);
+        String payload = http.getString();
+        Serial.println(payload);
+    }
+    else
+    {
+        Serial.print("Error code: ");
+        Serial.println(httpResponseCode);
+    }
+    // Free resources
+    http.end();
+}
+
 void connectToWifi()
 {
     Serial.println();
@@ -93,10 +120,12 @@ void loop()
     delay(10);
 
     // get the data
-    String md = mockData();
+    // String md = mockData();
 
-    Serial.print("Data: ");
-    Serial.println(md);
+    // Serial.print("Data: ");
+    // Serial.println(md);
 
-    delay(3000);
+    makeRequest();
+
+    delay(10000);
 }
