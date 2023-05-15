@@ -1,58 +1,71 @@
-#include <sys/socket.h>
-#include <arpa/inet.h>
+#include <stdio.h>      /* for printf() and fprintf() */
+#include <sys/socket.h> /* for socket(), connect(), send(), and recv() */
+#include <arpa/inet.h>  /* for sockaddr_in and inet_addr() */
+#include <stdlib.h>     /* for atoi() and exit() */
+#include <string.h>     /* for memset() */
+#include <unistd.h>     /* for close() */
 
-int main(int argc, char *argv[])
+#define RCVBUFSIZE 32 /* Size of receive buffer */
+
+void DieWithError(char *errorMessage)
 {
-    int sock;
-    struct sockaddr_in server;
-    char message[1000], server_reply[2000];
+    perror(errorMessage);
+    exit(1);
+}
 
-    // Create socket
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == -1)
+int app_main(int argc, char *argv[])
+{
+    int sock;                        /* Socket descriptor */
+    struct sockaddr_in echoServAddr; /* Echo server address */
+    unsigned short echoServPort;     /* Echo server port */
+    char *servIP;                    /* Server IP address (dotted quad) */
+    char *echoString;                /* String to send to echo server */
+    char echoBuffer[RCVBUFSIZE];     /* Buffer for echo string */
+    unsigned int echoStringLen;      /* Length of string to echo */
+    int bytesRcvd, totalBytesRcvd;   /* Bytes read in single recv()
+                                        and total bytes read */
+
+
+    servIP = "194.210.198.50";     /* First arg: server IP address (dotted quad) */
+    echoString = "Hello"; /* Second arg: string to echo */
+    echoServPort = 8882; /* 7 is the well-known port for the echo service */
+
+    /* Create a reliable, stream socket using TCP */
+    if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+        DieWithError("socket() failed");
+
+    /* Construct the server address structure */
+    memset(&echoServAddr, 0, sizeof(echoServAddr));   /* Zero out structure */
+    echoServAddr.sin_family = AF_INET;                /* Internet address family */
+    echoServAddr.sin_addr.s_addr = inet_addr(servIP); /* Server IP address */
+    echoServAddr.sin_port = htons(echoServPort);      /* Server port */
+
+    /* Establish the connection to the echo server */
+    if (connect(sock, (struct sockaddr *)&echoServAddr, sizeof(echoServAddr)) < 0)
+        DieWithError("connect() failed");
+
+    echoStringLen = strlen(echoString); /* Determine input length */
+
+    /* Send the string to the server */
+    if (send(sock, echoString, echoStringLen, 0) != echoStringLen)
+        DieWithError("send() sent a different number of bytes than expected");
+
+    /* Receive the same string back from the server */
+    totalBytesRcvd = 0;
+    printf("Received: "); /* Setup to print the echoed string */
+    while (totalBytesRcvd < echoStringLen)
     {
-        printf("cound'n create socket");
-    }
-    puts("Socket created");
-
-    server.sin_addr.s_addr = inet_addr("194.210.198.134");
-    server.sin_family = AF_INET;
-    server.sin_port = htons(8792);
-
-    // Connect to remote server
-    if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0)
-    {
-        printf("connection error");
-        return 1;
+        /* Receive up to the buffer size (minus 1 to leave space for
+           a null terminator) bytes from the sender */
+        if ((bytesRcvd = recv(sock, echoBuffer, RCVBUFSIZE - 1, 0)) <= 0)
+            DieWithError("recv() failed or connection closed prematurely");
+        totalBytesRcvd += bytesRcvd;  /* Keep tally of total bytes */
+        echoBuffer[bytesRcvd] = '\0'; /* Terminate the string! */
+        printf("%s", echoBuffer);     /* Print the echo buffer */
     }
 
-    puts("Connected\n");
-
-    // keep communicating with server
-    while (1)
-    {
-        printf("write your message : ");
-        gets(message);
-
-        // Send some data
-        if (send(sock, message, strlen(message), 0) < 0)
-        {
-            puts("send error");
-            return 1;
-        }
-
-        // Receive a reply from the server
-        bzero(server_reply, 2000);
-        if (recv(sock, server_reply, 2000, 0) < 0)
-        {
-            puts("recv failed");
-            break;
-        }
-
-        puts("Server reply :");
-        puts(server_reply);
-    }
+    printf("\n"); /* Print a final linefeed */
 
     close(sock);
-    return 0;
+    exit(0);
 }

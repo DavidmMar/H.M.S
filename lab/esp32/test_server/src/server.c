@@ -1,78 +1,87 @@
-#include <stdio.h>
-#include <string.h> //strlen
-#include <sys/socket.h>
-#include <arpa/inet.h> //inet_addr
-#include <unistd.h>    //write
+#include <stdio.h>      /* for printf() and fprintf() */
+#include <sys/socket.h> /* for socket(), bind(), and connect() */
+#include <arpa/inet.h>  /* for sockaddr_in and inet_ntoa() */
+#include <stdlib.h>     /* for atoi() and exit() */
+#include <string.h>     /* for memset() */
+#include <unistd.h>     /* for close() */
 
-int app_main(int argc, char *argv[])
+#define MAXPENDING 5 /* Maximum outstanding connection requests */
+
+void DieWithError(char *errorMessage)
 {
-    int socket_desc, client_sock, c, read_size;
-    struct sockaddr_in server, client;
-    char client_message[2000];
-    char wellcome[] = "wellcome", seeyou[] = "see you", hi[] = "hi", bye[] = "bye";
-
-    // Create socket
-    socket_desc = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_desc == -1)
-    {
-        printf("Could not create socket");
-    }
-    puts("Socket created");
-
-    // Prepare the sockaddr_in structure
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons(8882);
-
-    // Bind
-    if (bind(socket_desc, (struct sockaddr *)&server, sizeof(server)) < 0)
-    {
-        // print the error message
-        printf("bind failed. Error");
-        return 1;
-    }
-    puts("bind done");
-
-    // Listen
-    listen(socket_desc, 3);
-
-    // Accept and incoming connection
-    puts("Waiting for incoming connections...");
-    c = sizeof(struct sockaddr_in);
-
-    // accept connection from an incoming client
-    client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t *)&c);
-    if (client_sock < 0)
-    {
-        printf("accept failed");
-        return 1;
-    }
-    puts("Connection accepted");
-
-    // Receive a message from client
-    while ((read_size = recv(client_sock, client_message, 2000, 0)) > 0)
-    {
-        // Send the message back to client
-        *(client_message + read_size) = '\0';
-        //*(wellcome + read_size) = '\0';
-        //*(seeyou + read_size) = '\0';
-        if (strcmp(client_message, hi) == 0)
-            write(client_sock, wellcome, strlen(wellcome));
-        else if (strcmp(client_message, bye) == 0)
-            write(client_sock, seeyou, strlen(seeyou));
-
-        write(client_sock, client_message, strlen(client_message));
-    }
-
-    if (read_size == 0)
-    {
-        puts("Client disconnected");
-        fflush(stdout);
-    }
-    else if (read_size == -1)
-    {
-        printf("recv failed");
-    }
-
-    return 0;
+    perror(errorMessage);
+    exit(1);
 }
+
+#define RCVBUFSIZE 32 /* Size of receive buffer */
+
+void HandleTCPClient(int clntSocket)
+{
+    char echoBuffer[RCVBUFSIZE]; /* Buffer for echo string */
+    int recvMsgSize;             /* Size of received message */
+
+    /* Receive message from client */
+    if ((recvMsgSize = recv(clntSocket, echoBuffer, RCVBUFSIZE, 0)) < 0)
+        DieWithError("recv() failed");
+
+    /* Send received string and receive again until end of transmission */
+    while (recvMsgSize > 0) /* zero indicates end of transmission */
+    {
+        /* Echo message back to client */
+        if (send(clntSocket, echoBuffer, recvMsgSize, 0) != recvMsgSize)
+            DieWithError("send() failed");
+
+        /* See if there is more data to receive */
+        if ((recvMsgSize = recv(clntSocket, echoBuffer, RCVBUFSIZE, 0)) < 0)
+            DieWithError("recv() failed");
+    }
+
+    close(clntSocket); /* Close client socket */
+}
+
+int main(int argc, char *argv[])
+{
+    int servSock;                    /* Socket descriptor for server */
+    int clntSock;                    /* Socket descriptor for client */
+    struct sockaddr_in echoServAddr; /* Local address */
+    struct sockaddr_in echoClntAddr; /* Client address */
+    unsigned short echoServPort;     /* Server port */
+    unsigned int clntLen;            /* Length of client address data structure */
+
+    echoServPort = atoi(argv[1]); /* First arg:  local port */
+
+    /* Create socket for incoming connections */
+    if ((servSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+        DieWithError("socket() failed");
+
+    /* Construct local address structure */
+    memset(&echoServAddr, 0, sizeof(echoServAddr));   /* Zero out structure */
+    echoServAddr.sin_family = AF_INET;                /* Internet address family */
+    echoServAddr.sin_addr.s_addr = htonl(INADDR_ANY); /* Any incoming interface */
+    echoServAddr.sin_port = htons(echoServPort);      /* Local port */
+
+    /* Bind to the local address */
+    if (bind(servSock, (struct sockaddr *)&echoServAddr, sizeof(echoServAddr)) < 0)
+        DieWithError("bind() failed");
+
+    /* Mark the socket so it will listen for incoming connections */
+    if (listen(servSock, MAXPENDING) < 0)
+        DieWithError("listen() failed");
+
+    for (;;) /* Run forever */
+    {
+        /* Set the size of the in-out parameter */
+        clntLen = sizeof(echoClntAddr);
+
+        /* Wait for a client to connect */
+        if ((clntSock = accept(servSock, (struct sockaddr *)&echoClntAddr,
+                               &clntLen)) < 0)
+            DieWithError("accept() failed");
+
+        /* clntSock is connected to a client! */
+
+        printf("Handling client %s\n", inet_ntoa(echoClntAddr.sin_addr));
+
+        HandleTCPClient(clntSock);
+    }
+    /* NOT REACHED */
