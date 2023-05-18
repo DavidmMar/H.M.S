@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     unsigned short echoServPort;     /* Server port */
     unsigned int clntLen;            /* Length of client address data structure */
 
-    echoServPort = atoi(argv[1]); /* First arg:  local port */
+    echoServPort = 8882; /* First arg:  local port */
 
     /* Create socket for incoming connections */
     if ((servSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
@@ -85,3 +85,4 @@ int main(int argc, char *argv[])
         HandleTCPClient(clntSock);
     }
     /* NOT REACHED */
+}

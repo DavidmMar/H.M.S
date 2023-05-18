@@ -1,131 +1,53 @@
-#include <mqtt_pub.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
 
-// Define NTP Client to get time
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP);
+const char *ssid = "DM";
+const char *password = "novilho123";
+const char *mqttServer = "192.168.137.1";
+const int mqttPort = 1883;
+const char *mqttTopic = "test/topic";
+const char *mqttClientId = "esp32-s2-client";
+const char *mqttMessage = "Hello, MQTT!";
 
-// Variables to save date and time
-String formattedDate;
-String dayStamp;
-String timeStamp;
-
-String getDateAndTime()
-{
-    while (!timeClient.update())
-    {
-        timeClient.forceUpdate();
-    }
-    // The formattedDate comes with the following format:
-    // 2018-05-28T16:00:13Z
-    // We need to extract date and time
-    formattedDate = timeClient.getFormattedDate();
-    Serial.println(formattedDate);
-
-    // Extract date
-    int splitT = formattedDate.indexOf("T");
-    dayStamp = formattedDate.substring(0, splitT);
-    Serial.print("DATE: ");
-    Serial.println(dayStamp);
-
-    // Extract time
-    timeStamp = formattedDate.substring(splitT + 1, formattedDate.length() - 1);
-    Serial.print("HOUR: ");
-    Serial.println(timeStamp);
-    delay(1000);
-
-    return formattedDate;
-}
-
-String mockData()
-{
-    String rnd = String(random(0, 1000));
-
-    String dateAndTime = getDateAndTime();
-    rnd.concat("_");
-    rnd.concat(dateAndTime);
-
-    return rnd;
-}
-
-void makeRequest()
-{
-    HTTPClient http;
-    String serverPath = "www.example.com";
-
-    // Your Domain name with URL path or IP address with path
-    http.begin(serverPath.c_str());
-
-    // Send HTTP GET request
-    int httpResponseCode = http.GET();
-
-    if (httpResponseCode > 0)
-    {
-        Serial.print("HTTP Response code: ");
-        Serial.println(httpResponseCode);
-        String payload = http.getString();
-        Serial.println(payload);
-    }
-    else
-    {
-        Serial.print("Error code: ");
-        Serial.println(httpResponseCode);
-    }
-    // Free resources
-    http.end();
-}
-
-void connectToWifi()
-{
-    Serial.println();
-    Serial.print("Connecting to ");
-    Serial.println(SSID);
-
-    WiFi.begin(SSID, PWD);
-
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(500);
-        Serial.print(".");
-    }
-
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
-}
+WiFiClient wifiClient;
+PubSubClient mqttClient(wifiClient);
 
 void setup()
 {
-    Serial.begin(921600);
+    Serial.begin(115200);
+    WiFi.begin(ssid, password);
 
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
-    delay(100);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(1000);
+        Serial.println("Connecting to WiFi...");
+    }
 
-    timeClient.begin();
-    // Set offset time in seconds to adjust for your timezone, for example:
-    // GMT +1 = 3600
-    // GMT +8 = 28800
-    // GMT -1 = -3600
-    // GMT 0 = 0
-    timeClient.setTimeOffset(3600);
+    Serial.println("Connected to WiFi");
 
-    connectToWifi();
+    mqttClient.setServer(mqttServer, mqttPort);
 
-    Serial.println("Setup done");
+    while (!mqttClient.connected())
+    {
+        if (mqttClient.connect(mqttClientId))
+        {
+            Serial.println("Connected to MQTT broker");
+        }
+        else
+        {
+            Serial.println("Connection to MQTT broker failed. Retrying...");
+            delay(2000);
+        }
+    }
 }
 
 void loop()
 {
-    delay(10);
+    if (mqttClient.connected())
+    {
+        mqttClient.publish(mqttTopic, mqttMessage);
+        Serial.println("Message published");
+    }
 
-    // get the data
-    // String md = mockData();
-
-    // Serial.print("Data: ");
-    // Serial.println(md);
-
-    makeRequest();
-
-    delay(10000);
+    delay(5000);
 }
