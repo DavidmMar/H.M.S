@@ -57,8 +57,9 @@ void wifi_init_sta()
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-void mqtt_publish_task(void *pvParameters)
+void mqtt_publish_task()
 {
+    ESP_LOGI(TAG, "In publish tag");
     int sock = -1;
     struct sockaddr_in server_address;
     struct hostent *server;
@@ -118,5 +119,10 @@ void app_main()
     ESP_ERROR_CHECK(nvs_flash_init());
     wifi_init_sta();
 
-    xTaskCreate(mqtt_publish_task, "mqtt_publish", 4096, NULL, 5, NULL);
+    ESP_LOGI(TAG, "Connected to Wifi!");
+
+    // xTaskCreate(mqtt_publish_task, "mqtt_publish", 4096, NULL, 5, NULL);
+    mqtt_publish_task();
+
+    return;
 }
