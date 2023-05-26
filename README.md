@@ -1,2 +1,2 @@
-# H.S.M.S
-Home Sensors Monitoring System
+# H.M.S
+Home Monitoring System

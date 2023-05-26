@@ -1,89 +1,51 @@
-#include <PZEM004Tv30.h>
+#include <PZEM004Tv30_MODBUS.h>
 
-PZEM004Tv30 pzem(Serial2, 44, 43);
-
-#include <PZEM004Tv30.h>
-
-PZEM004Tv30 pzem(11, 12); // Software Serial pin 11 (RX) & 12 (TX)
+HardwareSerial PZEMSerial = HardwareSerial(1);
+PZEM004Tv30_MODBUS sensor(&PZEMSerial, 1);
 
 void setup()
 {
-  Serial.begin(115200);
+    // Config serial
+    Serial.begin(9600);
+    // Initialize sensor and connect to it through the Modbus protocol
+    // Serial.println("Initializing PZEM004-v3.0 ...");
+    sensor.setupPZEM004();
 }
 
 void loop()
 {
-  float voltage = pzem.voltage();
-  if (voltage != NAN)
-  {
+
+    double value;
+
+    value = sensor.getPZEM004Voltage();
     Serial.print("Voltage: ");
-    Serial.print(voltage);
-    Serial.println("V");
-  }
-  else
-  {
-    Serial.println("Error reading voltage");
-  }
+    Serial.println(value); // V
+    delay(1000);
 
-  float current = pzem.current();
-  if (current != NAN)
-  {
+    value = sensor.getPZEM004Current();
     Serial.print("Current: ");
-    Serial.print(current);
-    Serial.println("A");
-  }
-  else
-  {
-    Serial.println("Error reading current");
-  }
+    Serial.println(value); // A
+    delay(1000);
 
-  float power = pzem.power();
-  if (current != NAN)
-  {
+    value = sensor.getPZEM004Power();
     Serial.print("Power: ");
-    Serial.print(power);
-    Serial.println("W");
-  }
-  else
-  {
-    Serial.println("Error reading power");
-  }
+    Serial.println(value); // W
+    delay(1000);
 
-  float energy = pzem.energy();
-  if (current != NAN)
-  {
+    value = sensor.getPZEM004Energy();
     Serial.print("Energy: ");
-    Serial.print(energy, 3);
-    Serial.println("kWh");
-  }
-  else
-  {
-    Serial.println("Error reading energy");
-  }
+    Serial.println(value); // kWh
+    delay(1000);
 
-  float frequency = pzem.frequency();
-  if (current != NAN)
-  {
+    value = sensor.getPZEM004Frequency();
     Serial.print("Frequency: ");
-    Serial.print(frequency, 1);
-    Serial.println("Hz");
-  }
-  else
-  {
-    Serial.println("Error reading frequency");
-  }
+    Serial.println(value); // Hz
+    delay(1000);
 
-  float pf = pzem.pf();
-  if (current != NAN)
-  {
-    Serial.print("PF: ");
-    Serial.println(pf);
-  }
-  else
-  {
-    Serial.println("Error reading power factor");
-  }
+    value = sensor.getPZEM004Pf();
+    Serial.print("Power Factor: ");
+    Serial.println(value);
+    delay(1000);
 
-  Serial.println();
-  delay(2000);
+    Serial.println("Next =================================");
 }

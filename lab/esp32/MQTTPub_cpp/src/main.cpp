@@ -2,10 +2,10 @@
 #include <PubSubClient.h>
 #include <HTTPClient.h>
 
-const char *ssid = "DM";
-const char *password = "novilho123";
-// const char *mqttServer = "194.210.198.50";
-IPAddress mqttServer(194, 210, 198, 50);
+const char *ssid = "MEO-7F5159";
+const char *password = "5394D25004";
+const char *mqttServer = "192.168.1.88";
+//IPAddress mqttServer(194, 210, 198, 50);
 const int mqttPort = 1883;
 const char *mqttTopic = "test/topic";
 const char *mqttClientId = "esp32-s2-client";
@@ -72,7 +72,7 @@ void setup()
         {
             Serial.print("Failed with state ");
             Serial.println(mqttClient.state());
-            Serial.println(":: :: :: :: :: :: :: :: :: :: ::");
+            Serial.println("Retrying \n");
             delay(2000);
         }
     }
