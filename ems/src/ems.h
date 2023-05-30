@@ -5,9 +5,9 @@
 #include <HTTPClient.h>
 #include <NTPClient.h>
 
-#define SSID "MEO-7F5159"
-#define PWD "5394D25004"
-#define MQTT_SERVER "192.168.1.88"
+#define SSID "HomeAM"
+#define PWD "VX327S6H"
+#define MQTT_SERVER "192.168.1.249"
 #define MQTT_PORT 1883
 #define MQTT_TOPIC "test/topic"
 #define MQTT_CLIENT_ID "esp32-s2-client-test"

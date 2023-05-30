@@ -11,7 +11,7 @@ NTPClient timeClient(ntpUDP);
 void setup()
 {
   // initiallize serial
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   // setup pzem
   sensor.setupPZEM004();
@@ -60,7 +60,10 @@ void loop()
   float energy = sensor.getPZEM004Energy();       // kWh
   float frequency = sensor.getPZEM004Frequency(); // Hz
   float pf = sensor.getPZEM004Pf();
-  String timestamp = timeClient.getFormattedTime();
+
+  timeClient.forceUpdate();
+  String timestamp = timeClient.getFormattedDate();
+  Serial.println(timestamp);
 
   // Debug
   Serial.println("Voltage: " + String(voltage) + "V");
@@ -72,7 +75,7 @@ void loop()
   Serial.println("Next =================================");
 
   // compose object to send
-  StaticJsonDocument<JSON_OBJECT_SIZE(8)> doc;
+  StaticJsonDocument<JSON_OBJECT_SIZE(10)> doc;
 
   doc["sensor"] = SENSOR_TYPE;
   doc["voltage"] = voltage;
@@ -83,11 +86,15 @@ void loop()
   doc["pf"] = pf;
   doc["timestamp"] = timestamp;
 
-  char *payload;
+  // Debug
+  serializeJsonPretty(doc, Serial);
+  Serial.println(" ");
+
+  String payload;
   serializeJson(doc, payload);
 
   // send to the broker
-  if (mqttClient.publish(MQTT_TOPIC, payload) == true)
+  if (mqttClient.publish(MQTT_TOPIC, payload.c_str()) == true)
   {
     Serial.println("Success sending message");
   }
@@ -95,4 +102,7 @@ void loop()
   {
     Serial.println("Error sending message");
   }
+  Serial.println(" ");
+
+  delay(5000);
 }
