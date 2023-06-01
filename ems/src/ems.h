@@ -2,7 +2,6 @@
 #include <ArduinoJson.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
-#include <HTTPClient.h>
 #include <NTPClient.h>
 
 #define SSID "HomeAM"
