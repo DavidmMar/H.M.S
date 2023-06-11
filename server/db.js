@@ -8,8 +8,9 @@ module.exports = {
     listTables,
     createTable,
     deleteTable,
-    getAllDocs,
-    insertData
+    listData,
+    listDataByTime,
+    insertData,
 
 }
 
@@ -25,147 +26,203 @@ function connect(dbName) {
 
 function listDb() {
     let connection = null
-    connect()
+    return connect()
         .then(conn => {
-            let result = null
-            r.dbList().run(conn, function (err, res) {
+            return r.dbList().run(conn, function (err, res) {
+                connection = conn
                 if (err) console.log(err);
-                // console.log(JSON.stringify(res, null, 2));
-                console.log("----- end listDb ----- \n");
-                result = res
+                return res
             })
-            console.log(result);
-            connection = conn
         })
-        .then(result => {
-            console.log(connection);
+        .then(res => {
             connection.close()
-            console.log(result);
-            // return res
+            return res
         })
 }
 
 function createDb(dbName) {
-    connect(dbName)
+    let connection = null
+    return connect(dbName)
         .then(conn => {
-            r.dbCreate(dbName).run(conn, function (err, res) {
+            return r.dbCreate(dbName).run(conn, function (err, res) {
+                connection = conn
                 if (err) console.log(err);
-                console.log(JSON.stringify(res, null, 2));
-                console.log("----- end CreateDb ----- \n");
+                return res
             })
-            return conn
         })
-        .then((conn, res) => {
-            conn.close()
+        .then(res => {
+            connection.close()
             return res
         })
 }
 
 function deleteDb(dbName) {
-    connect(dbName)
+    let connection = null
+    return connect(dbName)
         .then(conn => {
-            r.dbDrop(dbName).run(conn, function (err, res) {
+            return r.dbDrop(dbName).run(conn, function (err, res) {
+                connection = conn
                 if (err) console.log(err);
-                console.log(JSON.stringify(res, null, 2));
-                console.log("----- end dropDB ----- \n");
+                return res
             })
         })
-        .then((conn, res) => {
-            conn.close()
+        .then(res => {
+            connection.close()
             return res
         })
 }
 
 function listTables(dbName) {
-    connect(dbName)
+    let connection = null
+    return connect(dbName)
         .then(conn => {
-            r.db(dbName).tableList().run(conn, function (err, res) {
-                if (err) throw err
-                console.log(JSON.stringify(res, null, 2));
-                console.log("----- end listTables ----- \n");
+            return r.db(dbName).tableList().run(conn, function (err, res) {
+                connection = conn
+                if (err) console.log(err);
+                return res
             })
         })
-        .then((conn, res) => {
-            conn.close()
+        .then(res => {
+            connection.close()
             return res
         })
 }
 
 function createTable(dbName, tableName) {
-    connect(dbName)
+    let connection = null
+    return connect(dbName)
         .then(conn => {
-            r.db(dbName).tableCreate(tableName).run(conn, function (err, res) {
+            return r.db(dbName).tableCreate(tableName).run(conn, function (err, res) {
+                connection = conn
                 if (err) console.log(err);
-                console.log(JSON.stringify(res, null, 2));
-                console.log("----- end createTable ----- \n");
+                return res
             })
         })
-        .then((conn, res) => {
-            conn.close()
+        .then(res => {
+            connection.close()
             return res
         })
 }
 
 function deleteTable(dbName, tableName) {
-    connect(dbName)
+    let connection = null
+    return connect(dbName)
         .then(conn => {
-            r.db(dbName).tableDrop(tableName).run(conn, function (err, res) {
-                if (err) throw err
-                console.log(JSON.stringify(res, null, 2));
-                console.log("----- end deleteTable ----- \n");
+            return r.db(dbName).tableDrop(tableName).run(conn, function (err, res) {
+                connection = conn
+                if (err) console.log(err);
+                return res
             })
         })
-        .then((conn, res) => {
-            conn.close()
+        .then(res => {
+            connection.close()
             return res
         })
 }
 
-function getAllDocs(dbName, tableName) {
-    connect(dbName)
+function listData(dbName, tableName) {
+    let connection = null
+    return connect(dbName)
         .then(conn => {
-            r.table(tableName).run(conn, function (err, res) {
-                if (err) throw err
-                console.log(JSON.stringify(res, null, 2));
-                console.log("----- end getAllDocs ----- \n");
+            return r.table(tableName).run(conn, function (err, res) {
+                connection = conn
+                if (err) console.log(err);
+                return res
             })
         })
-        .then((conn, res) => {
-            conn.close()
-            return res
+        .then(res => {
+            connection.close()
+            let arr = []
+            res.each(function (err, row) {
+                if (err) throw err
+                arr.push(row)
+            })
+            return arr
+        })
+}
+
+function listDataByTime(dbName, tableName) {
+    let connection = null
+    return connect(dbName)
+        .then(conn => {
+            if (!(hasIndex(dbName, tableName, "timestamp"))) { createIndex(dbName, tableName, "timestamp") }
+            else {
+                return r.table(tableName).orderBy({ index: "timestamp" }).run(conn, function (err, res) {
+                    connection = conn
+                    if (err) console.log(err);
+                    return res
+                })
+            }
+        })
+        .then(res => {
+            connection.close()
+            let arr = []
+            res.each(function (err, row) {
+                if (err) throw err
+                arr.push(row)
+            })
+            return arr
         })
 }
 
 function insertData(dbName, tableName, data) {
-    connect(dbName)
+    let connection = null
+    return connect(dbName)
         .then(conn => {
-            r.table(tableName).insert(data).run(conn, function (err, res) {
-                if (err) throw err
-                console.log(JSON.stringify(res, null, 2));
-                console.log("----- end insertData ----- \n");
+            return r.table(tableName).insert(data).run(conn, function (err, res) {
+                connection = conn
+                if (err) console.log(err);
+                return res
             })
-            return conn
         })
-        .then((conn, res) => {
-            conn.close()
+        .then(res => {
+            connection.close()
             return res
         })
 }
 
-
-
-function testFun() {
-    // deleteDb("jestTest")
-    listDb();
-    // createDb("test3");
-    // listDb();
-    // listTables("test")
-    // createTable("test", "testTable2");
-    // listTables("test")
-    // deleteTable("test", "testTable2")
-    // listTables("test")
-    // insertData("test", "testTable", {data: 2})
-    // getAllDocs("test", "testTable");
+function hasIndex(dbName, tableName, indexName) {
+    let connection = null
+    return connect(dbName)
+        .then(conn => {
+            return r.table(tableName).indexList().run(conn, function (err, res) {
+                connection = conn
+                if (err) console.log(err);
+                return res
+            })
+        })
+        .then(res => {
+            connection.close()
+            return res.includes(indexName)
+        })
 }
 
-testFun()
+function createIndex(dbName, tableName, indexName) {
+    let connection = null
+    return connect(dbName)
+        .then(conn => {
+            return r.table(tableName).indexCreate(indexName).run(conn, function (err, res) {
+                connection = conn
+                if (err) console.log(err);
+                return res
+            })
+        })
+        .then(res => {
+            connection.close()
+            return res
+        })
+}
+
+async function testFun() {
+    // console.log(await listDb())
+    // console.log(await listTables("testTopic"));
+    // console.log(await deleteTable("test", "testTable"));
+    // console.log(await createTable("test", "testTable"));
+    // console.log(await listData("testTopic", "electricity"));
+    // console.log(await listDataByTime("testTopic", "eletricity"));
+    console.log(await hasIndex("testTopic", "electricity", "timestamp"));
+    console.log(await createIndex("testTopic", "electricity", "timestamp"));
+    console.log(await hasIndex("testTopic", "electricity", "timestamp"));
+}
+
+// testFun()

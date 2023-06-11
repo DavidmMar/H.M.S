@@ -1,3 +1,6 @@
+# Project Specific
+credentials.h
+
 # Prerequisites
 *.d
 

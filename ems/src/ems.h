@@ -3,12 +3,23 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <NTPClient.h>
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
 
-#define SSID "HomeAM"
-#define PWD "VX327S6H"
-#define MQTT_SERVER "192.168.1.249"
+#include "credentials.h"
+
 #define MQTT_PORT 1883
-#define MQTT_TOPIC "test/topic"
+#define MQTT_TOPIC "testTopic"
 #define MQTT_CLIENT_ID "esp32-s2-client-test"
 
-#define SENSOR_TYPE "eletricity"
+
+#define DHT_PIN 44
+#define DHT_TYPE DHT11
+
+#define PZEM_SAMPLE_RATE_MS 1000
+#define DHT_SAMPLE_RATE_MS 10000
+
+#define VOLTAGE_ALARM_UPPER_LIMIT 250
+#define VOLTAGE_ALARM_LOWER_LIMIT 200
+
+// #define SENSOR_TYPE "electricity"c

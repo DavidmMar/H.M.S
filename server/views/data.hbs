@@ -1,0 +1,29 @@
+<div class="col-sm-10">
+  <h2>Data:</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Voltage</th>
+        <th>Current</th>
+        <th>Energy</th>
+        <th>Power</th>
+        <th>Frequency</th>
+        <th>Power Factor</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each dataList}}
+        <tr>
+            <td>{{this.timestamp}}</td>
+            <td>{{this.voltage}}</td>
+            <td>{{this.current}}</td>
+            <td>{{this.energy}}</td>
+            <td>{{this.power}}</td>
+            <td>{{this.frequency}}</td>
+            <td>{{this.pf}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
