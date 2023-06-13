@@ -145,9 +145,21 @@ function listDataByTime(dbName, tableName) {
     let connection = null
     return connect(dbName)
         .then(conn => {
-            if (!(hasIndex(dbName, tableName, "timestamp"))) { createIndex(dbName, tableName, "timestamp") }
-            return r.table(tableName).orderBy({ index: r.desc("timestamp") }).run(conn, function (err, res) {
-                connection = conn
+            connection = conn
+            return hasIndex(dbName, tableName, "timestamp")
+        })
+        .then(hasIndex => {
+            if (!hasIndex) { return createIndex(dbName, tableName, "timestamp") }
+        })
+        .then(() => {
+            console.log(" ");
+            return r.table(tableName).indexWait("timestamp").run(connection, function (err, res) {
+                if (err) console.log(err);
+                return res
+            })
+        })
+        .then(() => {
+            return r.table(tableName).orderBy({ index: r.desc("timestamp") }).run(connection, function (err, res) {
                 if (err) console.log(err);
                 return res
             })

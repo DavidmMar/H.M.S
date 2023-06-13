@@ -1,6 +1,6 @@
 const router = require("express").Router()
 const { table } = require("rethinkdb")
-const db = require("./db")
+const db = require("./hms-db")
 
 module.exports = {
     listDb,
