@@ -11,7 +11,7 @@ module.exports = {
     listData,
     listDataByTime,
     insertData,
-
+    getDataFeed
 }
 
 const r = require("rethinkdb")
@@ -146,13 +146,11 @@ function listDataByTime(dbName, tableName) {
     return connect(dbName)
         .then(conn => {
             if (!(hasIndex(dbName, tableName, "timestamp"))) { createIndex(dbName, tableName, "timestamp") }
-            else {
-                return r.table(tableName).orderBy({ index: "timestamp" }).run(conn, function (err, res) {
-                    connection = conn
-                    if (err) console.log(err);
-                    return res
-                })
-            }
+            return r.table(tableName).orderBy({ index: r.desc("timestamp") }).run(conn, function (err, res) {
+                connection = conn
+                if (err) console.log(err);
+                return res
+            })
         })
         .then(res => {
             connection.close()
@@ -213,16 +211,25 @@ function createIndex(dbName, tableName, indexName) {
         })
 }
 
-async function testFun() {
-    // console.log(await listDb())
-    // console.log(await listTables("testTopic"));
-    // console.log(await deleteTable("test", "testTable"));
-    // console.log(await createTable("test", "testTable"));
-    // console.log(await listData("testTopic", "electricity"));
-    // console.log(await listDataByTime("testTopic", "eletricity"));
-    console.log(await hasIndex("testTopic", "electricity", "timestamp"));
-    console.log(await createIndex("testTopic", "electricity", "timestamp"));
-    console.log(await hasIndex("testTopic", "electricity", "timestamp"));
+function getDataFeed(dbName, tableName) {
+    let connection = null
+    return connect(dbName)
+        .then(conn => {
+            if (!(hasIndex(dbName, tableName, "timestamp"))) { createIndex(dbName, tableName, "timestamp") }
+            return r.table(tableName).orderBy({ index: r.desc("timestamp") }).changes().run(conn, function (err, cursor) {
+                connection = conn
+                if (err) console.log(err);
+                return cursor
+            })
+        })
+        .then(cursor => {
+            cursor.each(function (err, row) {
+                if (err) throw err;
+                console.log(row);
+                return row
+            }, function () {
+                connection.close()
+                return
+            })
+        })
 }
-
-// testFun()

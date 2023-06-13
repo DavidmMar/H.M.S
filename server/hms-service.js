@@ -1,11 +1,13 @@
 const router = require("express").Router()
+const { table } = require("rethinkdb")
 const db = require("./db")
 
 module.exports = {
     listDb,
     listTables,
     listData,
-    listDataByTime
+    listDataByTime,
+    getDataFeed
 }
 
 function listDb() {
@@ -22,4 +24,8 @@ function listData(dbName, tableName) {
 
 async function listDataByTime(dbName, tableName) {
     return db.listDataByTime(dbName, tableName)
+}
+
+function getDataFeed(dbName, tableName) {
+    return db.getDataFeed(dbName, tableName)
 }

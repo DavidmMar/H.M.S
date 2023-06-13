@@ -16,8 +16,8 @@ unsigned long dhtMillis = 0;
 
 void setup()
 {
-  // init led
-  pinMode(LED_BUILTIN, OUTPUT);
+  // // init led
+  // pinMode(LED_BUILTIN, OUTPUT);
 
   // initiallize serial
   Serial.begin(9600);
@@ -82,14 +82,14 @@ void loop()
     String timestamp = timeClient.getFormattedDate();
 
     // check for outlier
-    if (voltage < VOLTAGE_ALARM_LOWER_LIMIT || voltage > VOLTAGE_ALARM_UPPER_LIMIT)
-    {
-      digitalWrite(LED_BUILTIN, HIGH);
-    }
-    else
-    {
-      digitalWrite(LED_BUILTIN, LOW);
-    }
+    // if (voltage < VOLTAGE_ALARM_LOWER_LIMIT || voltage > VOLTAGE_ALARM_UPPER_LIMIT)
+    // {
+    //   digitalWrite(LED_BUILTIN, HIGH);
+    // }
+    // else
+    // {
+    //   digitalWrite(LED_BUILTIN, LOW);
+    // }
     
 
     // Debug
@@ -152,7 +152,7 @@ void loop()
 
     // compose object to send
     StaticJsonDocument<JSON_OBJECT_SIZE(20)> doc;
-    doc["sensor"] = "hum&temp";
+    doc["sensor"] = "humNtemp";
 
     JsonObject data = doc.createNestedObject("data");
     data["temperature"] = temp;

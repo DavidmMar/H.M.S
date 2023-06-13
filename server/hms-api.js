@@ -2,7 +2,7 @@ const router = require("express").Router()
 const service = require("./hms-service")
 
 router.get("/", (req, res, next) => {
-    res.send("Hello!")
+    res.send("Hello from H.M.S API!")
 })
 
 router.get("/db", (req, res, next) => {
@@ -23,5 +23,10 @@ router.get("/db/:dbName/tables/:tableName/data", (req, res, next) => {
         .catch(next)
 })
 
+router.get("/db/:dbName/tables/:tableName/data/feed", (req, res, next) => {
+    service.getDataFeed(req.params.dbName, req.params.tableName)
+        .then(aux => res.json(aux))
+        .catch(next)
+})
 
 module.exports = router

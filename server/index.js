@@ -21,7 +21,7 @@ client.on('connect', function () {
     }
 
     if (!err) {
-      console.log("no error!\n");
+      console.log(`Subscribed to ${topic}!\n`);
     }
   })
 })
@@ -35,7 +35,7 @@ client.on('message', async function (topic, message) {
     await db.createTable(topic, res.sensor)
   }
 
-  console.log(db.insertData(topic, res.sensor, res.data));
+  db.insertData(topic, res.sensor, res.data)
 })
 
 app.listen(PORT, () => {

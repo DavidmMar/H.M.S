@@ -13,7 +13,7 @@
 #define MQTT_CLIENT_ID "esp32-s2-client-test"
 
 
-#define DHT_PIN 44
+#define DHT_PIN 45
 #define DHT_TYPE DHT11
 
 #define PZEM_SAMPLE_RATE_MS 1000
@@ -22,4 +22,4 @@
 #define VOLTAGE_ALARM_UPPER_LIMIT 250
 #define VOLTAGE_ALARM_LOWER_LIMIT 200
 
-// #define SENSOR_TYPE "electricity"c
+// #define SENSOR_TYPE "electricity"

@@ -41,9 +41,14 @@ function getData(req, res, next) {
     service
         .listDataByTime(req.params.dbName, req.params.tableName)
         .then(dataList => {
-            console.log(dataList);
-            return res.render("data", { "dataList": dataList })
+            let keys = Object.keys(dataList[0])
+            return res.render("data", { 
+                "dataList": dataList, 
+                "keys": keys
+            })
         })
         .catch(next)
 }
+
+
 module.exports = router
