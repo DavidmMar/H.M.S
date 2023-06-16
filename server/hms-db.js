@@ -15,6 +15,7 @@ module.exports = {
 }
 
 const r = require("rethinkdb")
+const utils = require("./utils.js")
 
 function connect(dbName) {
     try {
@@ -152,7 +153,6 @@ function listDataByTime(dbName, tableName) {
             if (!hasIndex) { return createIndex(dbName, tableName, "timestamp") }
         })
         .then(() => {
-            console.log(" ");
             return r.table(tableName).indexWait("timestamp").run(connection, function (err, res) {
                 if (err) console.log(err);
                 return res

@@ -1,11 +1,13 @@
 const express = require("express")
 const router = express.Router()
 const service = require("./hms-service")
+const utils = require("./utils.js")
 
 router.get("/", (req, res) => { res.render("index") })
 router.get("/db", getDbList)
 router.get("/db/:dbName/tables", getTableList)
 router.get("/db/:dbName/tables/:tableName/data", getData)
+router.get("/db/:dbName/tables/:tableName/data/:dataType", getSingleData)
 
 function getDbList(req, res, next) {
     service
@@ -41,14 +43,42 @@ function getData(req, res, next) {
     service
         .listDataByTime(req.params.dbName, req.params.tableName)
         .then(dataList => {
+            dataList = utils.removeIds(dataList)
+            dataList.map(data => {
+                data.timestamp = utils.formatTimestamp(data.timestamp)
+                return data
+            })
+
             let keys = Object.keys(dataList[0])
-            return res.render("data", { 
-                "dataList": dataList, 
+            return res.render("data", {
+                "dataList": dataList,
                 "keys": keys
             })
         })
         .catch(next)
 }
 
+function getSingleData(req, res, next) {
+    service
+        .listDataByTime(req.params.dbName, req.params.tableName)
+        .then(dataList => {
+            if (!(Object.keys(dataList[0]).includes(req.params.dataType))) res.send("Data Type not available")
+            let validKeys = [req.params.dataType, "timestamp"]
+            dataList = utils.removeIds(dataList)
+            let filteredData = []
+            dataList.map(data => {
+                let filtered = Object.entries(data).filter(([key]) => validKeys.includes(key))
+                filteredData.push(Object.fromEntries(filtered))
+            })
+
+            console.log(filteredData);
+            let keys = Object.keys(filteredData[0])
+            return res.render("data", {
+                "dataList": filteredData,
+                "keys": keys
+            })
+        })
+        .catch(next)
+}
 
 module.exports = router
