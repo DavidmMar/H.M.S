@@ -7,7 +7,7 @@ router.get("/", (req, res) => { res.render("index") })
 router.get("/db", getDbList)
 router.get("/db/:dbName/tables", getTableList)
 router.get("/db/:dbName/tables/:tableName/data", getData)
-router.get("/db/:dbName/tables/:tableName/data/:dataType", getSingleData)
+router.get("/db/:dbName/tables/:tableName/data/:dataType", getDataType)
 
 function getDbList(req, res, next) {
     service
@@ -51,6 +51,8 @@ function getData(req, res, next) {
 
             let keys = Object.keys(dataList[0])
             return res.render("data", {
+                "dbName": req.params.dbName,
+                "tableName": req.params.tableName,
                 "dataList": dataList,
                 "keys": keys
             })
@@ -58,23 +60,18 @@ function getData(req, res, next) {
         .catch(next)
 }
 
-function getSingleData(req, res, next) {
+function getDataType(req, res, next) {
     service
-        .listDataByTime(req.params.dbName, req.params.tableName)
+        .listDataType(req.params.dbName, req.params.tableName, req.params.dataType)
         .then(dataList => {
-            if (!(Object.keys(dataList[0]).includes(req.params.dataType))) res.send("Data Type not available")
-            let validKeys = [req.params.dataType, "timestamp"]
-            dataList = utils.removeIds(dataList)
-            let filteredData = []
             dataList.map(data => {
-                let filtered = Object.entries(data).filter(([key]) => validKeys.includes(key))
-                filteredData.push(Object.fromEntries(filtered))
+                data.timestamp = utils.formatTimestamp(data.timestamp)
+                return data
             })
 
-            console.log(filteredData);
-            let keys = Object.keys(filteredData[0])
-            return res.render("data", {
-                "dataList": filteredData,
+            let keys = Object.keys(dataList[0])
+            return res.render("singleData", {
+                "dataList": dataList,
                 "keys": keys
             })
         })

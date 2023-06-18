@@ -11,6 +11,7 @@ module.exports = {
     listData,
     listDataByTime,
     insertData,
+    listDataType,
     getDataFeed
 }
 
@@ -223,6 +224,20 @@ function createIndex(dbName, tableName, indexName) {
         })
 }
 
+async function listDataType(dbName, tableName, dataType) {
+    const dataList = await listDataByTime(dbName, tableName)
+
+    if (!(Object.keys(dataList[0]).includes(dataType))) return undefined
+    let validKeys = [dataType, "timestamp"]
+    let filteredData = []
+    dataList.map(data => {
+        let filtered = Object.entries(data).filter(([key]) => validKeys.includes(key))
+        filteredData.push(Object.fromEntries(filtered))
+    })
+
+    return filteredData
+}
+
 function getDataFeed(dbName, tableName) {
     let connection = null
     return connect(dbName)
@@ -245,3 +260,5 @@ function getDataFeed(dbName, tableName) {
             })
         })
 }
+
+

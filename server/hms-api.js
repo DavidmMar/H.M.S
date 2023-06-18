@@ -23,6 +23,12 @@ router.get("/db/:dbName/tables/:tableName/data", (req, res, next) => {
         .catch(next)
 })
 
+router.get("/db/:dbName/tables/:tableName/data/:dataType", (req, res, next) => {
+    service.listDataType(req.params.dbName, req.params.tableName, req.params.dataType)
+        .then(list => res.json(list))
+        .catch(next)
+})
+
 router.get("/db/:dbName/tables/:tableName/data/feed", (req, res, next) => {
     service.getDataFeed(req.params.dbName, req.params.tableName)
         .then(aux => res.json(aux))

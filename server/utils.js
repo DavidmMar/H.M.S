@@ -1,7 +1,14 @@
 module.exports = {
+    rejectPromise,
     removeIds,
     separateTimestamp,
     formatTimestamp
+}
+
+function rejectPromise(status, msg) {
+    const err = new Error(msg)
+    err.status = status
+    return Promise.reject(err)
 }
 
 /**
