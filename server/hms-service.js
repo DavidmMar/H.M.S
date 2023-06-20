@@ -1,5 +1,4 @@
 const router = require("express").Router()
-const { table } = require("rethinkdb")
 const db = require("./hms-db")
 const utils = require("./utils.js")
 
@@ -9,7 +8,8 @@ module.exports = {
     listData,
     listDataByTime,
     listDataType,
-    getDataFeed
+    getDataFeed,
+    listDataSpecificHour
 }
 
 function listDb() {
@@ -31,11 +31,29 @@ async function listDataByTime(dbName, tableName) {
 function listDataType(dbName, tableName, dataType) {
     return db.listDataType(dbName, tableName, dataType)
         .then(dataList => {
-            if(dataList == undefined) return utils.rejectPromise(404, "No such data type")
+            if (dataList == undefined) return utils.rejectPromise(404, "No such data type")
             return dataList
         })
 }
 
 function getDataFeed(dbName, tableName) {
     return db.getDataFeed(dbName, tableName)
+}
+
+function listDataSpecificHour(dbName, tableName, hour) {
+    return db.listDataByTime(dbName, tableName)
+        .then(dataList => {
+            let filteredData = []
+            dataList.map(data => {
+                let dataHour = utils.separateTimestamp(data.timestamp)
+                if (dataHour == hour) {
+                    filteredData.push(data)
+                }
+                return data
+            })
+            console.log(dataList);
+
+            console.log(filteredData);
+            return filteredData
+        })
 }

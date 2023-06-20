@@ -1,14 +1,24 @@
 module.exports = {
     rejectPromise,
+    emitAlert,
     removeIds,
     separateTimestamp,
-    formatTimestamp
+    formatTimestamp,
+    formatTimestampFromObj
 }
 
 function rejectPromise(status, msg) {
     const err = new Error(msg)
     err.status = status
     return Promise.reject(err)
+}
+
+function emitAlert(session, title, message, kind){
+    session.alert = {
+        title,
+        message,
+        kind
+    }
 }
 
 /**
@@ -58,4 +68,8 @@ function formatTimestamp(timestamp) {
     let time = timestamp[1].slice(0, -1)   //remove Z at the end
 
     return `${date} ${time}`
+}
+
+function formatTimestampFromObj(timestamp) {
+    return `${timestamp.year}-${timestamp.month}-${timestamp.day} ${timestamp.hour}:${timestamp.min}:${timestamp.sec}`
 }
