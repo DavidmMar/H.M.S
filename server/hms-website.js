@@ -65,6 +65,99 @@ function getData(req, res, next) {
             })
             .catch(next)
     }
+    else if (req.query.timespan != undefined && req.query.timespan == "hourly") {
+        service
+            .listDataByTime(req.params.dbName, req.params.tableName)
+            .then(dataList => {
+                dataList = utils.removeIds(dataList)
+                let timespanedData = []
+                let prevHour = utils.separateTimestamp(dataList[0].timestamp).hour
+                let amount = 1
+                let obj = dataList.shift()
+
+                for (let index = 0; index < dataList.length; index++) {
+                    let data = dataList[index]
+                    if (utils.separateTimestamp(data.timestamp).hour == prevHour) {
+                        amount++
+                        for (let key in data) {
+                            if (key != "timestamp") obj[key] += data[key]
+                        }
+                    }
+
+                    if (utils.separateTimestamp(data.timestamp).hour != prevHour || index == dataList.length - 1) {
+                        for (let key in obj) {
+                            if (key != "timestamp") obj[key] /= amount
+                        }
+                        // prepare obj
+                        obj.timestamp = utils.separateTimestamp(obj.timestamp)
+                        obj.timestamp.min = "00"
+                        obj.timestamp.sec = "00"
+                        obj.timestamp = utils.formatTimestampFromObj(obj.timestamp)
+                        timespanedData.push(obj)
+
+                        // prepare data
+                        obj = data
+                        prevHour = utils.separateTimestamp(data.timestamp).hour
+                        amount = 1
+                    }
+                }
+
+                return res.render("data", {
+                    "dbName": req.params.dbName,
+                    "tableName": req.params.tableName,
+                    "dataList": timespanedData,
+                    "keys": Object.keys(timespanedData[0])
+                })
+            })
+            .catch(next)
+    }
+    else if (req.query.timespan != undefined && req.query.timespan == "daily") {
+        service
+            .listDataByTime(req.params.dbName, req.params.tableName)
+            .then(dataList => {
+                dataList = utils.removeIds(dataList)
+                let timespanedData = []
+                let prevDay = utils.separateTimestamp(dataList[0].timestamp).day
+                let amount = 1
+                let obj = dataList.shift()
+
+                for (let index = 0; index < dataList.length; index++) {
+                    let data = dataList[index]
+                    if (utils.separateTimestamp(data.timestamp).day == prevDay) {
+                        amount++
+                        for (let key in data) {
+                            if (key != "timestamp") obj[key] += data[key]
+                        }
+                    }
+
+                    if (utils.separateTimestamp(data.timestamp).day != prevDay || index == dataList.length - 1) {
+                        for (let key in obj) {
+                            if (key != "timestamp") obj[key] /= amount
+                        }
+                        // prepare obj
+                        obj.timestamp = utils.separateTimestamp(obj.timestamp)
+                        obj.timestamp.hour = "00"
+                        obj.timestamp.min = "00"
+                        obj.timestamp.sec = "00"
+                        obj.timestamp = utils.formatTimestampFromObj(obj.timestamp)
+                        timespanedData.push(obj)
+
+                        // prepare data
+                        obj = data
+                        prevDay = utils.separateTimestamp(data.timestamp).day
+                        amount = 1
+                    }
+                }
+
+                return res.render("data", {
+                    "dbName": req.params.dbName,
+                    "tableName": req.params.tableName,
+                    "dataList": timespanedData,
+                    "keys": Object.keys(timespanedData[0])
+                })
+            })
+            .catch(next)
+    }
     else {
         service
             .listDataByTime(req.params.dbName, req.params.tableName)
@@ -104,7 +197,6 @@ function getDataType(req, res, next) {
         })
         .catch(next)
 }
-
 
 // function getDataHourInterval(req, res, next) {
 //     service
