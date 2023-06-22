@@ -9,7 +9,7 @@
 #include "credentials.h"
 
 #define MQTT_PORT 1883
-#define MQTT_TOPIC "demo"
+#define MQTT_TOPIC "testTopic"
 #define MQTT_CLIENT_ID "esp32-s2-client-test"
 
 
