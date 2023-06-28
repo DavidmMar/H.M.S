@@ -1,4 +1,4 @@
-const db = require("../db.js")
+const db = require("../hms-db.js")
 
 test("create a db", async () => {
     const res = await db.createDb("jestTest")

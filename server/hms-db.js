@@ -12,7 +12,6 @@ module.exports = {
   listDataByTime,
   insertData,
   listDataType,
-  getDataFeed,
 };
 
 const r = require("rethinkdb");
@@ -269,38 +268,4 @@ async function listDataType(dbName, tableName, dataType) {
   });
 
   return filteredData;
-}
-
-function getDataFeed(dbName, tableName) {
-  let connection = null;
-  return connect(dbName)
-    .then((conn) => {
-      if (!hasIndex(dbName, tableName, "timestamp")) {
-        createIndex(dbName, tableName, "timestamp");
-      }
-      return r
-        .table(tableName)
-        .orderBy({ index: r.desc("timestamp") })
-        .changes()
-        .run(conn, function (err, cursor) {
-          connection = conn;
-          if (err) console.log(err);
-          return cursor;
-        });
-    })
-    .then((cursor) => {
-      const io = new socketio.Server(8080);
-      cursor.each(
-        function (err, row) {
-          if (err) throw err;
-          console.log(row);
-          io.emit("message", row);
-          return row;
-        },
-        function () {
-          connection.close();
-          return;
-        }
-      );
-    });
 }

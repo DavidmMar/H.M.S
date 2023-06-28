@@ -11,7 +11,6 @@ module.exports = {
   listDataType,
   listDataSpecificHour,
   listDataTimespan,
-  getDataFeed,
 };
 
 function listDb() {
@@ -136,8 +135,4 @@ function listDataTimespan(dbName, tableName, timespan) {
       }
     });
   }
-}
-
-function getDataFeed(dbName, tableName) {
-  return db.getDataFeed(dbName, tableName);
 }
