@@ -82,14 +82,14 @@ void loop()
     String timestamp = timeClient.getFormattedDate();
 
     // check for outlier
-    // if (voltage < VOLTAGE_ALARM_LOWER_LIMIT || voltage > VOLTAGE_ALARM_UPPER_LIMIT)
-    // {
-    //   digitalWrite(LED_BUILTIN, HIGH);
-    // }
-    // else
-    // {
-    //   digitalWrite(LED_BUILTIN, LOW);
-    // }
+    Serial.println("voltage: " + String(voltage));
+    if (voltage < VOLTAGE_ALARM_LOWER_LIMIT || voltage > VOLTAGE_ALARM_UPPER_LIMIT)
+    {
+      Serial.println("OUTLIER FOUND!!!");
+      digitalWrite(LED_BUILTIN, HIGH);
+      delay(5000);
+      digitalWrite(LED_BUILTIN, LOW);
+    }
 
     // Debug
     // Serial.println("Voltage: " + String(voltage) + "V");
@@ -114,8 +114,8 @@ void loop()
     data["timestamp"] = timestamp;
 
     // Debug
-    serializeJsonPretty(doc, Serial);
-    Serial.println(" ");
+    // serializeJsonPretty(doc, Serial);
+    // Serial.println(" ");
 
     String payload;
     serializeJson(doc, payload);
@@ -159,8 +159,8 @@ void loop()
     data["timestamp"] = timestamp;
 
     // Debug
-    serializeJsonPretty(doc, Serial);
-    Serial.println(" ");
+    // serializeJsonPretty(doc, Serial);
+    // Serial.println(" ");
 
     String payload;
     serializeJson(doc, payload);
