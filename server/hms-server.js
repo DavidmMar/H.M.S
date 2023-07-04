@@ -22,4 +22,5 @@ module.exports = function (app) {
 
   app.use("/api", router);
   app.use("/", website);
+  app.use('/js', express.static(__dirname + './public/js'));
 };

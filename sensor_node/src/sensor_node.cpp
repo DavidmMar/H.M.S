@@ -178,4 +178,14 @@ void loop()
     // update millis
     dhtMillis = currMillis;
   }
+
+
+  // PZEM004Tv30_MODBUS pzem32()
+
+
+  // for (size_t i = 0; i < NR_OF_MODULES; i++)
+  // {
+  //   /* code */
+  // }
+  
 }

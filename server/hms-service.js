@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const db = require("./hms-db");
 const utils = require("./utils.js");
-const socketio = require("socket.io");
 
 module.exports = {
   listDb,

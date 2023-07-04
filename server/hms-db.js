@@ -16,7 +16,6 @@ module.exports = {
 
 const r = require("rethinkdb");
 const utils = require("./utils.js");
-const socketio = require("socket.io");
 
 function connect(dbName) {
   try {
