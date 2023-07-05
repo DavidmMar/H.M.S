@@ -1,4 +1,5 @@
-#include <PZEM004Tv30_MODBUS.h>
+// #include <PZEM004Tv30_MODBUS.h>
+#include <PZEM004Tv30.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
@@ -9,9 +10,8 @@
 #include "credentials.h"
 
 #define MQTT_PORT 1883
-#define MQTT_TOPIC "testTopicOutlier"
+#define MQTT_TOPIC "testTopic"
 #define MQTT_CLIENT_ID "esp32-s2-client-test"
-
 
 #define DHT_PIN 33
 #define DHT_TYPE DHT11
@@ -23,6 +23,6 @@
 #define VOLTAGE_ALARM_LOWER_LIMIT 200
 
 #define NR_OF_MODULES 2
-#define DIVISION_TOPICS ["testTopicMultiple1", "testTopicMultiple2"]
+#define MULTIPLE_TOPICS [ "testTopicMultiple1", "testTopicMultiple2" ]
 
 // #define SENSOR_TYPE "electricity"

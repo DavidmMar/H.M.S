@@ -1,7 +1,8 @@
 #include "sensor_node.h"
 
 HardwareSerial PZEMSerial = HardwareSerial(1);
-PZEM004Tv30_MODBUS pzem(&PZEMSerial, 1);
+// PZEM004Tv30_MODBUS pzem(&PZEMSerial, 1);
+PZEM004Tv30 pzem(&PZEMSerial, 18, 17, 0x1);
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
@@ -23,7 +24,8 @@ void setup()
   Serial.begin(9600);
 
   // setup pzem
-  pzem.setupPZEM004();
+  // pzem.setupPZEM004();
+  Serial.println(pzem.getAddress());
 
   // setup dht
   dht.begin();
@@ -71,12 +73,19 @@ void loop()
   if (currMillis - pzemMillis >= PZEM_SAMPLE_RATE_MS)
   {
     // get measurements
-    float voltage = pzem.getPZEM004Voltage();     // V
-    float current = pzem.getPZEM004Current();     // A
-    float power = pzem.getPZEM004Power();         // W
-    float energy = pzem.getPZEM004Energy();       // kWh
-    float frequency = pzem.getPZEM004Frequency(); // Hz
-    float pf = pzem.getPZEM004Pf();
+    // float voltage = pzem.getPZEM004Voltage();     // V
+    // float current = pzem.getPZEM004Current();     // A
+    // float power = pzem.getPZEM004Power();         // W
+    // float energy = pzem.getPZEM004Energy();       // kWh
+    // float frequency = pzem.getPZEM004Frequency(); // Hz
+    // float pf = pzem.getPZEM004Pf();
+
+    float voltage = pzem.voltage();     // V
+    float current = pzem.current();     // A
+    float power = pzem.power();         // W
+    float energy = pzem.energy();       // kWh
+    float frequency = pzem.frequency(); // Hz
+    float pf = pzem.pf();
 
     timeClient.forceUpdate();
     String timestamp = timeClient.getFormattedDate();
@@ -179,13 +188,10 @@ void loop()
     dhtMillis = currMillis;
   }
 
-
   // PZEM004Tv30_MODBUS pzem32()
-
 
   // for (size_t i = 0; i < NR_OF_MODULES; i++)
   // {
   //   /* code */
   // }
-  
 }
