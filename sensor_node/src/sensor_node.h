@@ -1,4 +1,4 @@
-// #include <PZEM004Tv30_MODBUS.h>
+//#include <PZEM004Tv30_MODBUS.h>
 #include <PZEM004Tv30.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
@@ -10,7 +10,7 @@
 #include "credentials.h"
 
 #define MQTT_PORT 1883
-#define MQTT_TOPIC "testTopic"
+#define MQTT_TOPIC "videoDemo"
 #define MQTT_CLIENT_ID "esp32-s2-client-test"
 
 #define DHT_PIN 33

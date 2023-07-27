@@ -33,7 +33,7 @@ router.get("/db/:dbName/tables/:tableName/data", (req, res, next) => {
       )
       .then((list) => res.json(list))
       .catch(next);
-  } else if (req.query.timespan != undefined) {
+  } else if (req.query.timespan !== undefined) {
     service
       .listDataTimespan(
         req.params.dbName,

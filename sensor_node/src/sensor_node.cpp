@@ -3,6 +3,7 @@
 HardwareSerial PZEMSerial = HardwareSerial(1);
 // PZEM004Tv30_MODBUS pzem(&PZEMSerial, 1);
 PZEM004Tv30 pzem(&PZEMSerial, 18, 17, 0x1);
+//  PZEM004Tv30 pzem2(&PZEMSerial, 18, 17, 0x2);
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
@@ -17,15 +18,13 @@ unsigned long dhtMillis = 0;
 
 void setup()
 {
-  // // init led
-  // pinMode(LED_BUILTIN, OUTPUT);
-
   // initiallize serial
   Serial.begin(9600);
 
   // setup pzem
   // pzem.setupPZEM004();
-  Serial.println(pzem.getAddress());
+  // Serial.println(pzem.getAddress());
+  // Serial.println(pzem2.getAddress());
 
   // setup dht
   dht.begin();
@@ -95,9 +94,12 @@ void loop()
     if (voltage < VOLTAGE_ALARM_LOWER_LIMIT || voltage > VOLTAGE_ALARM_UPPER_LIMIT)
     {
       Serial.println("OUTLIER FOUND!!!");
+
+      pinMode(LED_BUILTIN, OUTPUT);
       digitalWrite(LED_BUILTIN, HIGH);
-      delay(5000);
+      delay(60000);
       digitalWrite(LED_BUILTIN, LOW);
+      pinMode(LED_BUILTIN, INPUT);
     }
 
     // Debug
@@ -187,11 +189,52 @@ void loop()
     // update millis
     dhtMillis = currMillis;
   }
-
-  // PZEM004Tv30_MODBUS pzem32()
-
-  // for (size_t i = 0; i < NR_OF_MODULES; i++)
-  // {
-  //   /* code */
-  // }
 }
+
+/*
+void loop()
+{
+  currMillis = millis();
+
+  // PZEM004
+  if (currMillis - pzemMillis >= 5000)
+  {
+    float voltage = pzem.voltage();     // V
+    float current = pzem.current();     // A
+    float power = pzem.power();         // W
+    float energy = pzem.energy();       // kWh
+    float frequency = pzem.frequency(); // Hz
+    float pf = pzem.pf();
+
+    // Debug
+    Serial.println("PZEM1 ================================");
+    Serial.println("Voltage: " + String(voltage) + "V");
+    Serial.println("Current: " + String(current) + "A");
+    Serial.println("Power: " + String(power) + "W");
+    Serial.println("Energy: " + String(energy) + "kWh");
+    Serial.println("Frequency: " + String(frequency) + "Hz");
+    Serial.println("Power Factor: " + String(pf));
+    Serial.println("Next =================================");
+
+    voltage = pzem2.voltage();     // V
+    current = pzem2.current();     // A
+    power = pzem2.power();         // W
+    energy = pzem2.energy();       // kWh
+    frequency = pzem2.frequency(); // Hz
+    pf = pzem2.pf();
+
+    // Debug
+    Serial.println("PZEM2 ================================");
+    Serial.println("Voltage: " + String(voltage) + "V");
+    Serial.println("Current: " + String(current) + "A");
+    Serial.println("Power: " + String(power) + "W");
+    Serial.println("Energy: " + String(energy) + "kWh");
+    Serial.println("Frequency: " + String(frequency) + "Hz");
+    Serial.println("Power Factor: " + String(pf));
+    Serial.println("Next =================================");
+
+    // update millis
+    pzemMillis = currMillis;
+  }
+}
+*/

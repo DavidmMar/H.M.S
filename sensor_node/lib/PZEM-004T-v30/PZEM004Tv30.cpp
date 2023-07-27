@@ -473,7 +473,6 @@ uint16_t PZEM004Tv30::recieve(uint8_t *resp, uint16_t len)
         if(_serial->available() > 0)
         {
             uint8_t c = (uint8_t)_serial->read();
-
             resp[index++] = c;
         }
         yield();	// do background netw tasks while blocked for IO (prevents ESP watchdog trigger)

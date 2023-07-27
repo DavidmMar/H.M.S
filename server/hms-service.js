@@ -54,84 +54,85 @@ function listDataSpecificHour(dbName, tableName, hour) {
   });
 }
 
-function listDataTimespan(dbName, tableName, timespan) {
+async function listDataTimespan(dbName, tableName, timespan) {
   if (timespan == "hourly") {
-    return db.listDataByTime(dbName, tableName).then((dataList) => {
-      dataList = utils.removeIds(dataList);
-      let timespanedData = [];
-      let prevHour = utils.separateTimestamp(dataList[0].timestamp).hour;
-      let amount = 1;
-      let obj = dataList.shift();
+    let dataList = await db.listDataByTime(dbName, tableName);
 
-      for (let index = 0; index < dataList.length; index++) {
-        let data = dataList[index];
-        if (utils.separateTimestamp(data.timestamp).hour == prevHour) {
-          amount++;
-          for (let key in data) {
-            if (key != "timestamp") obj[key] += data[key];
-          }
-        }
+    dataList = utils.removeIds(dataList);
+    let timespanedData = [];
+    let prevHour = utils.separateTimestamp(dataList[0].timestamp).hour;
+    let amount = 1;
+    let obj = dataList.shift();
 
-        if (
-          utils.separateTimestamp(data.timestamp).hour != prevHour ||
-          index == dataList.length - 1
-        ) {
-          for (let key in obj) {
-            if (key != "timestamp") obj[key] /= amount;
-          }
-          // prepare obj
-          obj.timestamp = utils.separateTimestamp(obj.timestamp);
-          obj.timestamp.min = "00";
-          obj.timestamp.sec = "00";
-          obj.timestamp = utils.formatTimestampFromObj(obj.timestamp);
-          timespanedData.push(obj);
-
-          // prepare data
-          obj = data;
-          prevHour = utils.separateTimestamp(data.timestamp).hour;
-          amount = 1;
+    for (let index = 0; index < dataList.length; index++) {
+      let data = dataList[index];
+      if (utils.separateTimestamp(data.timestamp).hour == prevHour) {
+        amount++;
+        for (let key in data) {
+          if (key != "timestamp") obj[key] += data[key];
         }
       }
-    });
+
+      if (
+        utils.separateTimestamp(data.timestamp).hour != prevHour ||
+        index == dataList.length - 1
+      ) {
+        for (let key in obj) {
+          if (key != "timestamp") obj[key] /= amount;
+        }
+        // prepare obj
+        obj.timestamp = utils.separateTimestamp(obj.timestamp);
+        obj.timestamp.min = "00";
+        obj.timestamp.sec = "00";
+        obj.timestamp = utils.formatTimestampFromObj(obj.timestamp);
+        timespanedData.push(obj);
+
+        // prepare data
+        obj = data;
+        prevHour = utils.separateTimestamp(data.timestamp).hour;
+        amount = 1;
+      }
+    }
+    return timespanedData;
   }
   if (timespan == "daily") {
-    return db.listDataByTime(dbName, tableName).then((dataList) => {
-      dataList = utils.removeIds(dataList);
-      let timespanedData = [];
-      let prevDay = utils.separateTimestamp(dataList[0].timestamp).day;
-      let amount = 1;
-      let obj = dataList.shift();
+    let dataList = await db.listDataByTime(dbName, tableName);
+    dataList = utils.removeIds(dataList);
+    let timespanedData = [];
+    let prevDay = utils.separateTimestamp(dataList[0].timestamp).day;
+    let amount = 1;
+    let obj = dataList.shift();
 
-      for (let index = 0; index < dataList.length; index++) {
-        let data = dataList[index];
-        if (utils.separateTimestamp(data.timestamp).day == prevDay) {
-          amount++;
-          for (let key in data) {
-            if (key != "timestamp") obj[key] += data[key];
-          }
-        }
-
-        if (
-          utils.separateTimestamp(data.timestamp).day != prevDay ||
-          index == dataList.length - 1
-        ) {
-          for (let key in obj) {
-            if (key != "timestamp") obj[key] /= amount;
-          }
-          // prepare obj
-          obj.timestamp = utils.separateTimestamp(obj.timestamp);
-          obj.timestamp.hour = "00";
-          obj.timestamp.min = "00";
-          obj.timestamp.sec = "00";
-          obj.timestamp = utils.formatTimestampFromObj(obj.timestamp);
-          timespanedData.push(obj);
-
-          // prepare data
-          obj = data;
-          prevDay = utils.separateTimestamp(data.timestamp).day;
-          amount = 1;
+    for (let index = 0; index < dataList.length; index++) {
+      let data = dataList[index];
+      if (utils.separateTimestamp(data.timestamp).day == prevDay) {
+        amount++;
+        for (let key in data) {
+          if (key != "timestamp") obj[key] += data[key];
         }
       }
-    });
+
+      if (
+        utils.separateTimestamp(data.timestamp).day != prevDay ||
+        index == dataList.length - 1
+      ) {
+        for (let key in obj) {
+          if (key != "timestamp") obj[key] /= amount;
+        }
+        // prepare obj
+        obj.timestamp = utils.separateTimestamp(obj.timestamp);
+        obj.timestamp.hour = "00";
+        obj.timestamp.min = "00";
+        obj.timestamp.sec = "00";
+        obj.timestamp = utils.formatTimestampFromObj(obj.timestamp);
+        timespanedData.push(obj);
+
+        // prepare data
+        obj = data;
+        prevDay = utils.separateTimestamp(data.timestamp).day;
+        amount = 1;
+      }
+    }
+    return timespanedData
   }
 }

@@ -3,7 +3,7 @@ require("dotenv").config()
 
 const mqtt = require('mqtt')
 const client = mqtt.connect([{ host: process.env.HOST_IP, port: 1883 }])
-const topic = "testTopic"
+const topic = "videoDemo"
 
 const db = require("./hms-db")
 
