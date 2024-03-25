@@ -30,9 +30,9 @@ This project was done in the context of Final Project (Project and Seminar cours
   - [Contact](#contact)
 
 ## Versions
-The fpd (final project delivery) fork and tag represent the state of the project when delivered for evaluation for the Project and Seminar course unit, along with the final report (rfG08).
+The fpd (final project delivery) branch and tag represent the state of the project when delivered for evaluation for the Project and Seminar course unit, along with the final report (rfG08).
 
-Subsequent tags or forks will be for the following development of the project.
+Subsequent tags or branches will be for the following development of the project.
 
 ## Installation Guide
 
