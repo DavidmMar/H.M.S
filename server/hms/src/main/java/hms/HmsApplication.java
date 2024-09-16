@@ -12,6 +12,8 @@ public class HmsApplication {
 
 	public static void main(String[] args) {
 
+		MqttSubscriber.run();
+
 		SpringApplication.run(HmsApplication.class, args);
 	}
 
