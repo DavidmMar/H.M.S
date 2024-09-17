@@ -22,6 +22,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	implementation 'org.json:json:20240303'
 	implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
 	implementation 'com.rethinkdb:rethinkdb-driver:2.4.4'
 }

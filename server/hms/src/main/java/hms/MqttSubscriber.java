@@ -5,7 +5,7 @@ import org.eclipse.paho.client.mqttv3.*;
 public class MqttSubscriber {
 
     public static void run() {
-        String broker = "xxx";
+        String broker = "tcp://xxx:xxx";
         String clientId = "hms_server";
 
         MqttClient client = connect(broker, clientId);
@@ -28,11 +28,11 @@ public class MqttSubscriber {
                 System.out.println("qos: " + msg.getQos());
                 System.out.println("message content: " + new String(msg.getPayload()));
 
-                //rdb.storeMessage
+                RethinkdbDriver.storeMessage(topic, new String(msg.getPayload()));
             }
         });
 
-        String topic = "solar_cell_1";
+        String topic = "Test";
         int qos = 0;
 
         try {
