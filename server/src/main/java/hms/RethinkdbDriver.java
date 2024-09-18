@@ -3,6 +3,7 @@ package hms;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
+import com.rethinkdb.net.Result;
 import org.json.JSONObject;
 
 public class RethinkdbDriver {
@@ -22,10 +23,20 @@ public class RethinkdbDriver {
         JSONObject json = new JSONObject();
         json.put("msg", msg);
 
-
         r.db(db).table(table).insert(json).run(conn);
     }
 
     public static void createTable(String table) {
+
+    }
+
+    public static String listTables() {
+        Result<Object> res = r.dbList().run(conn);
+
+        return String.valueOf(res);
+    }
+
+    public static void listEntries(String table) {
+
     }
 }
