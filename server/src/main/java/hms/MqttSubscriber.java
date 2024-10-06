@@ -1,5 +1,6 @@
 package hms;
 
+import hms.db.RethinkdbDriver;
 import org.eclipse.paho.client.mqttv3.*;
 
 public class MqttSubscriber {
@@ -28,7 +29,7 @@ public class MqttSubscriber {
                 System.out.println("qos: " + msg.getQos());
                 System.out.println("message content: " + new String(msg.getPayload()));
 
-                RethinkdbDriver.storeMessage(topic, new String(msg.getPayload()));
+//                RethinkdbDriver.storeMessage(topic, new String(msg.getPayload()));
             }
         });
 

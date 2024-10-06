@@ -1,5 +1,6 @@
 # Project Specific
 credentials.h
+db.properties
 
 # Prerequisites
 *.d
