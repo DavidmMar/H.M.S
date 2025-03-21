@@ -3,14 +3,13 @@ package hms;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Result;
-import org.json.JSONObject;
 
 
-public class DbRepository {
+public class SolarCellRepository {
     RethinkDB r;
     Connection conn;
 
-    public DbRepository(RethinkDB r, Connection conn) {
+    public SolarCellRepository(RethinkDB r, Connection conn) {
         this.r = r;
         this.conn = conn;
     }

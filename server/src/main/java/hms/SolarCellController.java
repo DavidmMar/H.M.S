@@ -2,10 +2,10 @@ package hms;
 
 import org.springframework.web.bind.annotation.GetMapping;
 
-public class DbController {
-    DbService dbService;
+public class SolarCellController {
+    SolarCellService dbService;
 
-    public DbController(DbService dbService) {
+    public SolarCellController(SolarCellService dbService) {
         this.dbService = dbService;
     }
 
